@@ -7,144 +7,222 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap');
-        body { background-color: #020617; color: #e2e8f0; font-family: 'JetBrains+Mono', monospace; overflow-x: hidden; }
-        .glass { background: rgba(30, 41, 59, 0.6); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.08); }
-        .neon-text { text-shadow: 0 0 15px rgba(34, 197, 94, 0.6); }
-        .neon-border-green { border: 1px solid rgba(34, 197, 94, 0.3); box-shadow: 0 0 20px rgba(34, 197, 94, 0.1); }
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; }
-        .chart-container { height: 300px; width: 100%; }
-        .rating-transition { transition: all 0.3s ease-in-out; }
-        .tip-card { border-left: 3px solid #3b82f6; padding: 0.75rem 1rem; background: rgba(15, 23, 42, 0.5); border-radius: 0 8px 8px 0; }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=JetBrains+Mono:wght@400;700&display=swap');
+        body { background-color: #020617; color: #e2e8f0; font-family: 'Inter', sans-serif; overflow-x: hidden; }
+        .font-mono-custom { font-family: 'JetBrains+Mono', monospace; }
+        
+        .glass { background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.05); box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5); }
+        .neon-text { text-shadow: 0 0 20px rgba(34, 197, 94, 0.5); }
+        .neon-border-green { border: 1px solid rgba(34, 197, 94, 0.4); box-shadow: 0 0 25px rgba(34, 197, 94, 0.15); }
+        
+        .chart-container { height: 320px; width: 100%; position: relative; z-index: 10; }
+        .rating-transition { transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
+        .tip-card { border-left: 4px solid #3b82f6; padding: 1rem; background: rgba(30, 41, 59, 0.5); border-radius: 0 12px 12px 0; }
+        
+        /* Custom Scrollbar für den Wireframe Container */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
     </style>
 </head>
-<body class="p-4 lg:p-10">
+<body class="p-4 lg:p-8 selection:bg-green-500/30 selection:text-green-200">
 
     <div class="max-w-7xl mx-auto">
-        <!-- Header -->
-        <div class="flex flex-col md:flex-row justify-between items-start mb-8 gap-6">
+        <div class="flex flex-col md:flex-row justify-between items-start mb-10 gap-6">
             <div>
-                <h1 class="text-4xl font-bold text-green-500 neon-text mb-2 uppercase tracking-tighter">Web Eco-Intelligence</h1>
-                <p class="text-slate-400 border-l-2 border-green-500 pl-4 text-sm">Resource Analytics Engine • SDG 12 Compliance • Professional Edition</p>
+                <h1 class="text-4xl md:text-5xl font-black text-green-400 neon-text mb-3 uppercase tracking-tighter">Web Eco-Intelligence</h1>
+                <p class="text-slate-400 border-l-4 border-green-500 pl-4 text-sm font-bold uppercase tracking-widest">Resource Analytics Engine • SDG 12 • Pro Edition</p>
             </div>
-            <div class="flex bg-slate-900 p-1 rounded-xl border border-slate-800">
-                <button onclick="switchTab('tracker')" id="btn-tracker" class="px-6 py-2 bg-green-600 rounded-lg font-bold transition-all duration-300">Eco-Tracker</button>
-                <button onclick="switchTab('game')" id="btn-game" class="px-6 py-2 rounded-lg font-bold hover:bg-slate-800 transition-all duration-300">Stress Test</button>
+            <div class="flex bg-slate-900/80 p-1.5 rounded-2xl border border-slate-800 backdrop-blur-md">
+                <button onclick="switchTab('tracker')" id="btn-tracker" class="px-8 py-3 bg-green-600 text-white rounded-xl font-black uppercase tracking-widest shadow-[0_0_15px_rgba(34,197,94,0.4)] transition-all duration-300">Live Engine</button>
+                <button onclick="switchTab('game')" id="btn-game" class="px-8 py-3 rounded-xl font-bold uppercase tracking-widest text-slate-400 hover:text-white hover:bg-slate-800 transition-all duration-300">Stress Test</button>
             </div>
         </div>
 
-        <!-- URL Input -->
-        <div class="glass p-4 rounded-2xl mb-8 flex flex-col md:flex-row gap-4 items-center neon-border-green">
-            <div class="relative flex-1 w-full">
-                <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 font-bold italic">HTTPS://</span>
-                <input type="text" id="urlInput" placeholder="youtube.com, google.de, netflix.com ..." 
-                       class="w-full bg-slate-950 border border-slate-800 p-4 pl-24 rounded-xl outline-none focus:border-green-500 transition text-green-400 font-bold uppercase tracking-widest">
+        <div class="glass p-5 rounded-3xl mb-10 flex flex-col md:flex-row gap-4 items-center neon-border-green relative overflow-hidden">
+            <div class="absolute inset-0 bg-gradient-to-r from-green-500/10 to-transparent pointer-events-none"></div>
+            <div class="relative flex-1 w-full group">
+                <span class="absolute left-5 top-1/2 -translate-y-1/2 text-slate-500 font-black italic tracking-widest group-focus-within:text-green-500 transition-colors">HTTPS://</span>
+                <input type="text" id="urlInput" placeholder="youtube.com, wikipedia.org, netflix.com ..." 
+                       class="w-full bg-slate-950 border-2 border-slate-800 focus:border-green-500 p-5 pl-28 rounded-2xl outline-none transition-all text-green-400 font-mono-custom font-bold text-lg shadow-inner">
             </div>
-            <button onclick="analyzeURL()" class="w-full md:w-auto px-10 py-4 bg-green-600 hover:bg-green-400 text-slate-950 rounded-xl font-black transition-all transform active:scale-95">ANALYSIEREN</button>
+            <button onclick="analyzeURL()" class="w-full md:w-auto px-12 py-5 bg-green-500 hover:bg-green-400 text-slate-950 rounded-2xl font-black uppercase tracking-widest transition-all transform hover:scale-[1.02] active:scale-95 shadow-[0_0_20px_rgba(34,197,94,0.3)]">Analyse Starten</button>
         </div>
 
         <!-- Tracker Section -->
-        <div id="section-tracker" class="space-y-8">
+        <div id="section-tracker" class="space-y-10">
             
-            <!-- 1. GRAPH AT THE TOP -->
-            <div class="glass p-6 rounded-3xl neon-border-green relative overflow-hidden">
-                <div class="flex justify-between items-center mb-6 relative z-10">
+            <!-- 1. GRAPH & RATING COMBO -->
+            <div class="glass p-8 rounded-[2rem] neon-border-green relative overflow-hidden">
+                <!-- BG Glow -->
+                <div class="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-32 bg-green-500/10 blur-[100px] rounded-full pointer-events-none"></div>
+                
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 relative z-10 gap-4">
                     <div>
-                        <h3 class="font-black text-xl tracking-tighter uppercase">Traffic Load (Realtime)</h3>
-                        <p class="text-xs text-slate-400">Trend-Update in: <span id="timer-val" class="text-green-500 font-bold">20</span>s</p>
+                        <h3 class="font-black text-2xl tracking-tighter uppercase flex items-center gap-3">
+                            <span class="w-3 h-3 rounded-full bg-red-500 animate-pulse"></span> Live Traffic Load
+                        </h3>
+                        <p class="text-xs text-slate-400 font-mono-custom mt-1">Trend-Update in: <span id="timer-val" class="text-green-400 font-bold">20</span>s</p>
                     </div>
-                    <div class="text-right">
-                        <span id="display-url" class="text-sm font-bold text-blue-400 block tracking-widest uppercase">Initialisiere...</span>
-                        <span id="site-size-label" class="text-[10px] text-slate-500 uppercase font-bold tracking-widest italic">Berechne Clustergröße</span>
+                    <div class="text-left md:text-right bg-slate-900 px-5 py-2 rounded-xl border border-slate-800">
+                        <span id="display-url" class="text-sm font-black text-green-400 block tracking-widest uppercase">youtube.com</span>
+                        <span id="site-size-label" class="text-[10px] text-slate-500 uppercase font-bold tracking-widest">Global Video Node</span>
                     </div>
                 </div>
-                <div class="chart-container">
+                
+                <div class="chart-container mb-8 border-b border-slate-800/50 pb-6">
                     <canvas id="liveChart"></canvas>
                 </div>
 
-                <!-- 2. RATING DIRECTLY UNDER THE GRAPH -->
-                <div class="mt-6 flex flex-col md:flex-row items-center gap-8 pt-6 border-t border-slate-800 relative z-10">
-                    <div class="flex flex-col items-center">
-                        <span class="text-[10px] text-slate-500 font-bold uppercase tracking-widest mb-2">Efficiency Rating</span>
-                        <div id="efficiency-circle" class="w-24 h-24 rounded-full border-8 rating-transition flex items-center justify-center text-4xl font-black text-white bg-slate-950">A</div>
+                <!-- Rating -->
+                <div class="flex flex-col md:flex-row items-center gap-8 relative z-10 bg-slate-900/50 p-6 rounded-3xl border border-slate-800">
+                    <div class="flex flex-col items-center shrink-0">
+                        <span class="text-[10px] text-slate-400 font-black uppercase tracking-widest mb-3">Eco-Rating</span>
+                        <div id="efficiency-circle" class="w-28 h-28 rounded-full border-[10px] rating-transition flex items-center justify-center text-5xl font-black text-white bg-slate-950 shadow-[0_0_30px_rgba(0,0,0,0.5)]">A</div>
                     </div>
                     <div class="flex-1 text-center md:text-left">
-                        <h4 class="text-green-400 font-bold uppercase mb-1 flex items-center gap-2 justify-center md:justify-start">
-                            <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span> SYSTEM STATUS
-                        </h4>
-                        <p id="efficiency-desc" class="text-sm text-slate-300 leading-relaxed italic">Warten auf Eingabe...</p>
+                        <h4 class="text-white font-black uppercase tracking-widest mb-2 text-xl">System Status</h4>
+                        <p id="efficiency-desc" class="text-slate-400 leading-relaxed font-medium">Initialisiere Analyse-Engine...</p>
                     </div>
                 </div>
             </div>
 
-            <!-- 3. STATS -->
-            <div class="stats-grid">
-                <div class="glass p-6 rounded-2xl border-l-4 border-green-500">
-                    <span class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 block">Stromverbrauch (Netz)</span>
-                    <div class="flex items-baseline gap-2">
-                        <span id="stat-power" class="text-3xl font-black text-white tracking-tighter">0.00</span>
-                        <span class="text-green-500 font-bold text-xs italic">kWh/s</span>
+            <!-- 2. STATS GRID -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="glass p-8 rounded-3xl border-t-4 border-t-green-500 relative overflow-hidden group">
+                    <div class="absolute -right-6 -bottom-6 opacity-5 group-hover:scale-110 transition-transform duration-500"><svg width="120" height="120" fill="currentColor"><path d="M13 10V3L4 14H11V21L20 10H13Z"/></svg></div>
+                    <span class="text-xs font-black text-slate-500 uppercase tracking-widest mb-4 block">Strombedarf (Global/s)</span>
+                    <div class="flex items-baseline gap-3">
+                        <span id="stat-power" class="text-5xl font-black text-white tracking-tighter font-mono-custom">0.00</span>
+                        <span class="text-green-500 font-bold uppercase tracking-widest text-sm">kWh</span>
                     </div>
                 </div>
-                <div class="glass p-6 rounded-2xl border-l-4 border-blue-500">
-                    <span class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 block">Kühlwasser (DataCenter)</span>
-                    <div class="flex items-baseline gap-2">
-                        <span id="stat-water" class="text-3xl font-black text-white tracking-tighter">0.00</span>
-                        <span class="text-blue-500 font-bold text-xs italic">L/s</span>
+                <div class="glass p-8 rounded-3xl border-t-4 border-t-blue-500 relative overflow-hidden group">
+                    <div class="absolute -right-6 -bottom-6 opacity-5 group-hover:scale-110 transition-transform duration-500"><svg width="120" height="120" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9C5 14.25 12 22 12 22S19 14.25 19 9C19 5.13 15.87 2 12 2Z"/></svg></div>
+                    <span class="text-xs font-black text-slate-500 uppercase tracking-widest mb-4 block">Kühlwasser (Global/s)</span>
+                    <div class="flex items-baseline gap-3">
+                        <span id="stat-water" class="text-5xl font-black text-white tracking-tighter font-mono-custom">0.00</span>
+                        <span class="text-blue-500 font-bold uppercase tracking-widest text-sm">Liter</span>
                     </div>
                 </div>
-                <div class="glass p-6 rounded-2xl border-l-4 border-red-600">
-                    <span class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 block">CO₂ Emissionen</span>
-                    <div class="flex items-baseline gap-2">
-                        <span id="stat-co2" class="text-3xl font-black text-white tracking-tighter">0.00</span>
-                        <span class="text-red-600 font-bold text-xs italic">kg/s</span>
+                <div class="glass p-8 rounded-3xl border-t-4 border-t-red-500 relative overflow-hidden group">
+                    <div class="absolute -right-6 -bottom-6 opacity-5 group-hover:scale-110 transition-transform duration-500"><svg width="120" height="120" fill="currentColor"><path d="M3 15C3 15 4.5 13 8 13C11.5 13 12.5 15 16 15C19.5 15 21 13 21 13V6C21 6 19.5 8 16 8C12.5 8 11.5 6 8 6C4.5 6 3 8 3 8V15Z"/></svg></div>
+                    <span class="text-xs font-black text-slate-500 uppercase tracking-widest mb-4 block">CO₂ Emission (Global/s)</span>
+                    <div class="flex items-baseline gap-3">
+                        <span id="stat-co2" class="text-5xl font-black text-white tracking-tighter font-mono-custom">0.00</span>
+                        <span class="text-red-500 font-bold uppercase tracking-widest text-sm">kg</span>
                     </div>
                 </div>
             </div>
 
-            <!-- 4. ACTION PLAN & IMPROVEMENTS -->
+            <!-- 3. ACTION PLAN -->
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <!-- Site Improvements -->
-                <div class="glass p-8 rounded-3xl border border-blue-900/30">
-                    <h3 class="font-black text-lg mb-6 flex items-center gap-2 uppercase tracking-tighter">
-                        <span class="w-2 h-6 bg-blue-500 block"></span> Technische Optimierung
+                <!-- Tech Improvements -->
+                <div class="glass p-8 rounded-3xl border border-blue-900/40 hover:border-blue-500/40 transition-colors">
+                    <h3 class="font-black text-xl mb-8 flex items-center gap-3 uppercase tracking-tighter">
+                        <div class="w-10 h-10 rounded-xl bg-blue-500/20 flex items-center justify-center text-blue-500"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg></div>
+                        Backend-Optimierung (Admin)
                     </h3>
-                    <ul id="site-improvements" class="space-y-4 text-xs text-slate-300">
-                        <!-- JS Injection -->
-                    </ul>
+                    <ul id="site-improvements" class="space-y-4 text-sm text-slate-300"></ul>
                 </div>
                 <!-- User Tips -->
-                <div class="glass p-8 rounded-3xl border border-yellow-900/30">
-                    <h3 class="font-black text-lg mb-6 flex items-center gap-2 uppercase tracking-tighter">
-                        <span class="w-2 h-6 bg-yellow-500 block"></span> Tipps für Nutzer
+                <div class="glass p-8 rounded-3xl border border-yellow-900/40 hover:border-yellow-500/40 transition-colors">
+                    <h3 class="font-black text-xl mb-8 flex items-center gap-3 uppercase tracking-tighter">
+                        <div class="w-10 h-10 rounded-xl bg-yellow-500/20 flex items-center justify-center text-yellow-500"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg></div>
+                        Nutzer-Verhalten (SDG 12)
                     </h3>
-                    <ul id="user-tips" class="space-y-4 text-xs text-slate-300">
-                        <!-- JS Injection -->
-                    </ul>
+                    <ul id="user-tips" class="space-y-4 text-sm text-slate-300"></ul>
                 </div>
             </div>
 
-            <!-- 5. RESOURCE ALLOCATION -->
+            <!-- 4. RESOURCE ALLOCATION -->
             <div class="glass p-8 rounded-3xl border border-slate-800">
-                <h3 class="font-black text-lg mb-6 flex items-center gap-2 uppercase tracking-tighter">
-                    <span class="w-2 h-6 bg-green-500 block"></span> Resource Allocation Breakdown
+                <h3 class="font-black text-xl mb-8 flex items-center gap-3 uppercase tracking-tighter">
+                    <div class="w-10 h-10 rounded-xl bg-green-500/20 flex items-center justify-center text-green-500"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"></path></svg></div>
+                    Lastenverteilung (Datenstruktur)
                 </h3>
-                <div id="breakdown-container" class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                    <!-- JS Injection -->
+                <div id="breakdown-container" class="grid grid-cols-1 md:grid-cols-3 gap-8"></div>
+            </div>
+
+            <!-- 5. LIVE NODE VISUALIZER (ECO SIMULATOR) -->
+            <div class="glass p-8 rounded-[2rem] border-2 border-slate-700/50 relative overflow-hidden">
+                <!-- Eco Background Glow -->
+                <div id="eco-bg-glow" class="absolute inset-0 bg-green-500/5 opacity-0 transition-opacity duration-700 pointer-events-none"></div>
+
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-6 relative z-10">
+                    <div>
+                        <h3 class="font-black text-2xl tracking-tighter uppercase flex items-center gap-3">
+                            <svg class="w-6 h-6 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                            Live Site Simulator
+                        </h3>
+                        <p class="text-sm text-slate-400 mt-1">Prüft X-Frame-Options und simuliert den Eco-Modus auf der Zielseite.</p>
+                    </div>
+                    
+                    <!-- Eco Toggle Switch -->
+                    <button id="eco-toggle-btn" onclick="toggleEcoMode()" class="px-6 py-3 bg-slate-900 rounded-2xl font-black border border-slate-700 flex items-center gap-4 transition-all hover:bg-slate-800 shadow-lg">
+                        <span id="eco-status" class="text-slate-400 text-sm uppercase tracking-widest">Eco Mode: Off</span>
+                        <div class="w-14 h-7 bg-slate-950 rounded-full relative border border-slate-800 shadow-inner overflow-hidden">
+                            <div id="eco-knob" class="w-5 h-5 bg-slate-500 rounded-full absolute top-1 left-1 transition-all duration-300 shadow-md"></div>
+                        </div>
+                    </button>
+                </div>
+                
+                <!-- Simulated Browser Window -->
+                <div class="w-full rounded-2xl border border-slate-700 overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.5)] relative bg-slate-900 z-10" style="height: 500px;">
+                    <!-- Browser Header -->
+                    <div class="h-12 bg-slate-800 flex items-center px-4 gap-2 border-b border-slate-700">
+                        <div class="flex gap-2 mr-4">
+                            <div class="w-3.5 h-3.5 rounded-full bg-red-500/80"></div>
+                            <div class="w-3.5 h-3.5 rounded-full bg-yellow-500/80"></div>
+                            <div class="w-3.5 h-3.5 rounded-full bg-green-500/80"></div>
+                        </div>
+                        <div class="flex-1 bg-slate-900/80 border border-slate-700/50 px-4 py-1.5 rounded-md flex items-center gap-2">
+                            <svg class="w-3 h-3 text-slate-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"></path></svg>
+                            <span class="text-xs text-slate-300 font-mono-custom truncate" id="sim-url-bar">https://youtube.com</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Content Area (Real Iframe OR Wireframe) -->
+                    <div id="sim-content" class="w-full h-[calc(100%-3rem)] bg-white relative overflow-hidden transition-all duration-700">
+                        
+                        <!-- Real Iframe (for allowed sites like Wikipedia) -->
+                        <iframe id="sim-iframe" class="w-full h-full border-0 absolute inset-0 z-10 transition-opacity duration-300" sandbox="allow-same-origin allow-scripts"></iframe>
+                        
+                        <!-- Wireframe Fallback (for blocked sites like YouTube) -->
+                        <div id="sim-wireframe" class="w-full h-full bg-slate-50 absolute inset-0 z-20 hidden flex-col p-6 overflow-y-auto">
+                            <!-- Wireframe Content gets injected here via JS -->
+                        </div>
+                        
+                        <!-- Loading Overlay -->
+                        <div id="sim-loader" class="absolute inset-0 bg-slate-900 z-30 flex flex-col items-center justify-center hidden">
+                            <div class="w-12 h-12 border-4 border-green-500 border-t-transparent rounded-full animate-spin mb-4"></div>
+                            <span class="text-green-500 font-mono-custom text-sm font-bold tracking-widest uppercase">Analyzing DOM...</span>
+                        </div>
+                    </div>
                 </div>
             </div>
+
         </div>
 
         <!-- Game Section -->
         <div id="section-game" class="hidden">
-            <div class="glass p-10 rounded-3xl text-center max-w-3xl mx-auto neon-border-green">
-                <h2 class="text-3xl font-black text-green-500 mb-6 uppercase">Server Stress Test</h2>
-                <canvas id="gameCanvas" class="mx-auto mb-6 bg-black rounded-lg"></canvas>
-                <div class="flex justify-center gap-12 text-2xl font-black">
-                    <div>Nodes: <span id="game-score" class="text-green-500">0</span></div>
-                    <div>Heat: <span id="game-temp" class="text-red-500">20.0</span>°C</div>
+            <div class="glass p-10 rounded-[2rem] text-center max-w-4xl mx-auto neon-border-green">
+                <h2 class="text-4xl font-black text-green-500 mb-4 uppercase tracking-tighter">Thermal Stress Test</h2>
+                <p class="text-slate-400 mb-8 max-w-xl mx-auto">Kühle die überhitzenden Rechenzentrums-Knoten durch Klicken, um eine Notabschaltung zu verhindern (SDG 12.2 Praxis-Simulation).</p>
+                
+                <div class="relative rounded-2xl overflow-hidden border-2 border-slate-800 shadow-[0_0_30px_rgba(0,0,0,0.5)] bg-slate-950 mb-8">
+                    <canvas id="gameCanvas" class="w-full max-w-[800px] h-[400px] mx-auto cursor-crosshair block"></canvas>
                 </div>
-                <button id="start-game" class="mt-8 px-12 py-4 bg-green-600 rounded-xl font-black hover:bg-green-400 text-slate-950 transition-all uppercase tracking-widest">Start System Boot</button>
+
+                <div class="flex justify-center gap-16 text-3xl font-black bg-slate-900/50 inline-flex p-6 rounded-2xl border border-slate-800">
+                    <div class="flex flex-col"><span class="text-[10px] text-slate-500 uppercase tracking-widest mb-1">Fixed Nodes</span><span id="game-score" class="text-green-500">0</span></div>
+                    <div class="flex flex-col"><span class="text-[10px] text-slate-500 uppercase tracking-widest mb-1">Core Temp</span><span id="game-temp" class="text-red-500 font-mono-custom">20.0°C</span></div>
+                </div>
+                
+                <div class="mt-10">
+                    <button id="start-game" class="px-12 py-5 bg-green-600 rounded-2xl font-black hover:bg-green-400 text-white hover:text-slate-950 transition-all uppercase tracking-widest shadow-lg transform hover:scale-105">System Boot Sequenz</button>
+                </div>
             </div>
         </div>
     </div>
@@ -155,99 +233,59 @@
             "youtube.com": { 
                 trafficScale: 1000, 
                 label: "Massive Global Video Node", 
-                breakdown: { "Video Streaming": 65, "Shorts Algorithm": 25, "Upload Logic": 10 },
-                rating: "C", 
-                desc: "Extremer Stromverbrauch durch transkodierung von Millionen Videos gleichzeitig.",
-                improvements: [
-                    "Wechsel zu AV1-Codec für 30% weniger Bandbreite.",
-                    "Betrieb von Rechenzentren mit 100% On-Site Solar.",
-                    "Verbesserte Hitze-Rückgewinnung in Server-Clustern."
-                ],
-                userTips: [
-                    "Auflösung auf 720p reduzieren bei kleinen Bildschirmen.",
-                    "Autoplay-Funktion in den Einstellungen deaktivieren.",
-                    "Hintergrund-Streaming ohne Video-Aktivität vermeiden."
-                ]
-            },
-            "google.com": { 
-                trafficScale: 850, 
-                label: "Global Search Infrastructure", 
-                breakdown: { "Search Indexing": 40, "Ads Engine": 30, "AI Inference": 30 },
-                rating: "A", 
-                desc: "Vorbildliche Effizienz durch minimale Datenpakete und hocheffizientes Caching.",
-                improvements: [
-                    "Minimierung der KI-Rechenleistung bei Standardanfragen.",
-                    "Optimierung der Dark-Mode-Ladezeiten auf OLED.",
-                    "Zentralisierung der CDN-Anfragen zur Wege-Verkürzung."
-                ],
-                userTips: [
-                    "Spezifische Suchbegriffe nutzen für weniger Anfragen.",
-                    "Lesezeichen für häufig besuchte Seiten anlegen.",
-                    "Cloud-Sync-Intervalle für Dokumente erhöhen."
-                ]
+                breakdown: { "4K/HD Video Stream": 65, "Shorts Algorithm": 25, "Background Sync": 10 },
+                rating: "D", 
+                desc: "Extremer Strombedarf. X-Frame-Options blockieren Einbettung. Wireframe-Simulation aktiv.",
+                improvements: ["AV1-Codec Pflicht für mobile Geräte", "KI-gestützte Auflösungsdrosselung", "Hitze-Rückgewinnung in CDNs"],
+                userTips: ["Auflösung auf 720p reduzieren (spart ~50% Daten)", "Autoplay in Einstellungen deaktivieren", "Kein Hintergrund-Streaming für Musik"]
             },
             "netflix.com": { 
-                trafficScale: 700, 
+                trafficScale: 850, 
                 label: "Premium Streaming Entity", 
-                breakdown: { "4K HDR Processing": 75, "UI Metadata": 15, "Security Sync": 10 },
-                rating: "D", 
-                desc: "Hoher ökologischer Fußabdruck pro User durch massive Datenmengen.",
-                improvements: [
-                    "Intelligente Bitraten-Reduktion in Peak-Zeiten.",
-                    "Einsatz von Liquid Cooling in Edge-Nodes.",
-                    "Verschlankung der Preview-Video-Auto-Loads."
-                ],
-                userTips: [
-                    "Download-Funktion für häufig gesehene Inhalte nutzen.",
-                    "Streaming beenden statt stundenlang zu pausieren.",
-                    "Geräte mit geringerem Stromverbrauch bevorzugen."
-                ]
+                breakdown: { "Ultra HD Video Processing": 80, "UI Metadata": 15, "DRM Security": 5 },
+                rating: "E", 
+                desc: "Massiver ökologischer Fußabdruck durch hochauflösendes Dauer-Streaming.",
+                improvements: ["Dynamische Bitraten bei hoher Netzlast", "Ökostrom-Zertifikate für alle Edge-Server", "Abschaltung von Auto-Trailern"],
+                userTips: ["Filme im WLAN downloaden statt live streamen", "SD Auflösung auf kleinen Tablets nutzen", "Gerät nach dem Schauen komplett ausschalten"]
+            },
+            "google": { 
+                trafficScale: 700, 
+                label: "Global Search Engine", 
+                breakdown: { "Search Indexing": 45, "Ads Engine": 30, "AI Inference": 25 },
+                rating: "B", 
+                desc: "Gute Basis-Effizienz, aber extrem hohes globales Anfrage-Volumen.",
+                improvements: ["KI-Zusammenfassungen nur bei Bedarf (Opt-in)", "Dark Mode als globaler Standard", "Reduktion von Hintergrund-Trackern"],
+                userTips: ["Präzise suchen (weniger Seitenaufrufe)", "Lesezeichen statt Google-Suche nutzen", "Browser-Cache für statische Bilder nutzen"]
             },
             "wikipedia.org": { 
-                trafficScale: 180, 
-                label: "Global Open Source Library", 
-                breakdown: { "Plain Text Delivery": 85, "Image Serving": 10, "User Authentication": 5 },
+                trafficScale: 150, 
+                label: "Knowledge Knowledge Base", 
+                breakdown: { "Plain Text Delivery": 85, "Image Serving": 10, "API Sync": 5 },
                 rating: "A", 
-                desc: "Exzellente Green-IT Bilanz durch Verzicht auf unnötige Skripte.",
-                improvements: [
-                    "Umstellung auf noch leichtere SVG-Vektorgrafiken.",
-                    "Reduktion der API-Antwortgröße für Bots.",
-                    "Optimierung der Bild-Skalierung im Backend."
-                ],
-                userTips: [
-                    "Text-only Modus für schnelles Nachschlagen nutzen.",
-                    "Bilder nur bei Bedarf laden (Browser-Plugins).",
-                    "Wikipedia-App im Offline-Modus verwenden."
-                ]
+                desc: "Hervorragende Green-IT Bilanz durch pure Textdarstellung und effizientes Caching.",
+                improvements: ["Umstellung auf SVG/WebP Grafiken", "Reduktion von Redirect-Ketten", "Optimierte Server-Architektur"],
+                userTips: ["Wikipedia App nutzen (Offline Speicherung)", "Bilder im Browser deaktivieren", "Projekt durch Spenden für Hardware unterstützen"]
             },
             "default": { 
-                trafficScale: 15, 
+                trafficScale: 20, 
                 label: "General Web Node", 
-                breakdown: { "JS Frameworks": 45, "Images/Media": 35, "Backend API": 20 },
-                rating: "B", 
-                desc: "Standard-Webseite mit durchschnittlicher Optimierung.",
-                improvements: [
-                    "Bilder durch WebP oder AVIF Formate ersetzen.",
-                    "Unbenutztes CSS und JavaScript entfernen.",
-                    "Server-seitiges Caching (Redis/Memcached) aktivieren."
-                ],
-                userTips: [
-                    "Ad-Blocker nutzen, um unnötige Skripte zu stoppen.",
-                    "Browser-Tabs bei Nichtbenutzung schließen.",
-                    "Automatisches Neuladen von Tabs deaktivieren."
-                ]
+                breakdown: { "Client Scripts (JS)": 45, "Media/Images": 35, "Backend API": 20 },
+                rating: "C", 
+                desc: "Standard-Webseite. Durchschnittlicher Verbrauch abhängig von Medieninhalten.",
+                improvements: ["Lazy-Loading für alle Bilder aktivieren", "CSS & JS minifizieren (Brotli)", "CDN für statische Assets nutzen"],
+                userTips: ["Ad-Blocker stoppt Tracking-Skripte", "Tabs bei Nichtnutzung schließen", "Dark Mode im Betriebssystem aktivieren"]
             }
         };
 
         const ratingStyles = {
-            "A": { color: "border-green-500", glow: "0 0 25px rgba(34, 197, 94, 0.5)" },
-            "B": { color: "border-lime-400", glow: "0 0 20px rgba(163, 230, 53, 0.4)" },
-            "C": { color: "border-yellow-400", glow: "0 0 20px rgba(250, 204, 21, 0.4)" },
-            "D": { color: "border-orange-500", glow: "0 0 20px rgba(249, 115, 22, 0.4)" },
-            "E": { color: "border-red-600", glow: "0 0 30px rgba(220, 38, 38, 0.6)" }
+            "A": { color: "border-green-500", text: "text-green-500", glow: "0 0 30px rgba(34, 197, 94, 0.5)" },
+            "B": { color: "border-lime-400", text: "text-lime-400", glow: "0 0 25px rgba(163, 230, 53, 0.4)" },
+            "C": { color: "border-yellow-400", text: "text-yellow-400", glow: "0 0 25px rgba(250, 204, 21, 0.4)" },
+            "D": { color: "border-orange-500", text: "text-orange-500", glow: "0 0 25px rgba(249, 115, 22, 0.4)" },
+            "E": { color: "border-red-600", text: "text-red-600", glow: "0 0 35px rgba(220, 38, 38, 0.6)" }
         };
 
-        // --- States & Charts ---
+        // --- States ---
         let currentURL = "youtube.com";
         let liveData = Array(40).fill(0);
         let chart;
@@ -255,12 +293,13 @@
         let baseValue = 100;
         let targetBase = 100;
         let consumption = { power: 0, water: 0, co2: 0 };
+        let isEcoModeActive = false;
 
         function initChart() {
             const ctx = document.getElementById('liveChart').getContext('2d');
-            const gradient = ctx.createLinearGradient(0, 0, 0, 300);
-            gradient.addColorStop(0, 'rgba(34, 197, 94, 0.25)');
-            gradient.addColorStop(1, 'rgba(34, 197, 94, 0)');
+            const gradient = ctx.createLinearGradient(0, 0, 0, 320);
+            gradient.addColorStop(0, 'rgba(34, 197, 94, 0.3)');
+            gradient.addColorStop(1, 'rgba(34, 197, 94, 0.0)');
 
             chart = new Chart(ctx, {
                 type: 'line',
@@ -268,10 +307,10 @@
                     labels: Array(40).fill(""),
                     datasets: [{
                         data: liveData,
-                        borderColor: '#22c55e',
+                        borderColor: '#4ade80',
                         borderWidth: 3,
                         pointRadius: 0,
-                        tension: 0.3,
+                        tension: 0.4,
                         fill: true,
                         backgroundColor: gradient
                     }]
@@ -281,39 +320,44 @@
                     maintainAspectRatio: false,
                     animation: { duration: 400, easing: 'linear' },
                     scales: {
-                        y: { beginAtZero: false, min: 0, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#64748b', font: { family: 'JetBrains Mono' } } },
+                        y: { min: 0, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#64748b', font: { family: 'JetBrains Mono' } } },
                         x: { display: false }
                     },
-                    plugins: { legend: { display: false } }
+                    plugins: { legend: { display: false }, tooltip: { enabled: false } }
                 }
             });
         }
 
-        // --- Kern-Funktionalität ---
         function analyzeURL() {
-            const input = document.getElementById('urlInput').value.toLowerCase().trim();
+            let input = document.getElementById('urlInput').value.toLowerCase().trim();
             if(!input) return;
+            
+            // Domain cleanen
+            input = input.replace(/^(https?:\/\/)?(www\.)?/, '').split('/')[0];
             currentURL = input;
             
             const configKey = Object.keys(siteConfigs).find(k => currentURL.includes(k)) || "default";
             const config = siteConfigs[configKey];
             const ratingInfo = ratingStyles[config.rating];
             
-            // UI Updates (Sofort)
+            // 1. UI Updates (Text & Werte)
             targetBase = 100 * (0.6 + Math.random() * 0.8);
-            document.getElementById('display-url').innerText = currentURL;
+            document.getElementById('display-url').innerText = "https://" + currentURL;
             document.getElementById('site-size-label').innerText = config.label;
             
-            // Rating (Instant)
+            // 2. Rating Circle Update
             const circle = document.getElementById('efficiency-circle');
             circle.innerText = config.rating;
-            circle.className = `w-24 h-24 rounded-full border-8 rating-transition flex items-center justify-center text-4xl font-black mb-4 ${ratingInfo.color}`;
+            circle.className = `w-28 h-28 rounded-full border-[10px] rating-transition flex items-center justify-center text-5xl font-black mb-4 bg-slate-950 ${ratingInfo.color} ${ratingInfo.text}`;
             circle.style.boxShadow = ratingInfo.glow;
             document.getElementById('efficiency-desc').innerText = config.desc;
             
-            // Listen & Breakdown (Instant)
+            // 3. Listen & Breakdown
             updateLists(config);
             updateBreakdown(config);
+            
+            // 4. Simulator Engine anwerfen
+            triggerSimulatorLoader(currentURL);
             
             updateTimer = 20; 
         }
@@ -323,15 +367,15 @@
             const userTip = document.getElementById('user-tips');
             
             siteImp.innerHTML = config.improvements.map(item => `
-                <li class="tip-card">
-                    <span class="text-blue-400 font-bold block mb-1 uppercase tracking-tighter text-[10px]">Lösung</span>
+                <li class="tip-card border-blue-500">
+                    <span class="text-blue-400 font-black block mb-1 uppercase tracking-widest text-[10px]">Server Admin</span>
                     ${item}
                 </li>
             `).join('');
 
             userTip.innerHTML = config.userTips.map(item => `
-                <li class="tip-card" style="border-color: #eab308">
-                    <span class="text-yellow-500 font-bold block mb-1 uppercase tracking-tighter text-[10px]">Nutzer-Tipp</span>
+                <li class="tip-card border-yellow-500">
+                    <span class="text-yellow-500 font-black block mb-1 uppercase tracking-widest text-[10px]">Dein Beitrag</span>
                     ${item}
                 </li>
             `).join('');
@@ -342,17 +386,158 @@
             container.innerHTML = '';
             Object.entries(config.breakdown).forEach(([key, val]) => {
                 container.innerHTML += `
-                    <div class="glass p-5 rounded-2xl border border-slate-800 hover:border-green-500/30 transition-all">
-                        <div class="flex justify-between text-[10px] font-bold mb-4 uppercase tracking-widest">
-                            <span class="text-slate-500">${key}</span>
+                    <div class="bg-slate-900/80 p-5 rounded-2xl border border-slate-700/50">
+                        <div class="flex justify-between text-[10px] font-black mb-4 uppercase tracking-widest">
+                            <span class="text-slate-400">${key}</span>
                             <span class="text-white">${val}%</span>
                         </div>
-                        <div class="w-full bg-slate-950 rounded-full h-2 shadow-inner">
-                            <div class="bg-gradient-to-r from-blue-600 via-green-500 to-green-300 h-full rounded-full transition-all duration-1000" style="width: ${val}%"></div>
+                        <div class="w-full bg-slate-950 rounded-full h-2 shadow-inner overflow-hidden border border-slate-800">
+                            <div class="bg-gradient-to-r from-blue-500 to-green-400 h-full rounded-full transition-all duration-1000" style="width: ${val}%"></div>
                         </div>
                     </div>
                 `;
             });
+        }
+
+        // --- ECO SIMULATOR & WIREFRAME ENGINE ---
+        
+        function triggerSimulatorLoader(url) {
+            const loader = document.getElementById('sim-loader');
+            loader.classList.remove('hidden');
+            document.getElementById('sim-url-bar').innerText = "https://" + url;
+            
+            // Eco Mode resetten
+            if(isEcoModeActive) toggleEcoMode();
+
+            setTimeout(() => {
+                loader.classList.add('hidden');
+                updateSimulatorContent(url);
+            }, 800);
+        }
+
+        function updateSimulatorContent(url) {
+            const iframe = document.getElementById('sim-iframe');
+            const wireframe = document.getElementById('sim-wireframe');
+            
+            // "Hack": Liste von Sites, die X-Frame blockieren
+            const blockedSites = ["youtube", "google", "netflix", "tiktok", "twitch", "github", "pornhub"];
+            const isBlocked = blockedSites.some(site => url.includes(site));
+
+            if (isBlocked) {
+                iframe.classList.add('hidden');
+                wireframe.classList.remove('hidden');
+                wireframe.classList.add('flex');
+                
+                // Generiere passendes Wireframe
+                if (url.includes("youtube") || url.includes("twitch")) {
+                    wireframe.innerHTML = `
+                        <div class="h-12 bg-slate-200 rounded-lg w-full mb-8 shrink-0"></div>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div class="wf-media bg-slate-300 rounded-2xl h-40 flex flex-col items-center justify-center transition-all border-2 border-transparent"></div>
+                            <div class="wf-media bg-slate-300 rounded-2xl h-40 flex flex-col items-center justify-center transition-all border-2 border-transparent"></div>
+                            <div class="wf-media bg-slate-300 rounded-2xl h-40 flex flex-col items-center justify-center transition-all border-2 border-transparent"></div>
+                            <div class="wf-media bg-slate-300 rounded-2xl h-40 hidden md:flex flex-col items-center justify-center transition-all border-2 border-transparent"></div>
+                            <div class="wf-media bg-slate-300 rounded-2xl h-40 hidden md:flex flex-col items-center justify-center transition-all border-2 border-transparent"></div>
+                            <div class="wf-media bg-slate-300 rounded-2xl h-40 hidden md:flex flex-col items-center justify-center transition-all border-2 border-transparent"></div>
+                        </div>
+                    `;
+                } else if (url.includes("google")) {
+                    wireframe.innerHTML = `
+                        <div class="flex-1 flex flex-col items-center justify-center gap-8 pt-10">
+                            <div class="w-64 h-20 bg-slate-300 rounded-full"></div>
+                            <div class="w-full max-w-2xl h-14 bg-white rounded-full border-2 border-slate-200 shadow-sm"></div>
+                            <div class="flex gap-4">
+                                <div class="w-32 h-10 bg-slate-200 rounded shrink-0"></div>
+                                <div class="w-32 h-10 bg-slate-200 rounded shrink-0"></div>
+                            </div>
+                        </div>
+                    `;
+                } else if (url.includes("netflix")) {
+                    wireframe.innerHTML = `
+                        <div class="w-full h-72 bg-slate-800 rounded-3xl mb-8 wf-media flex flex-col items-center justify-center border-2 border-transparent shrink-0"></div>
+                        <div class="h-6 w-48 bg-slate-300 rounded mb-6 shrink-0"></div>
+                        <div class="flex gap-4 overflow-hidden shrink-0">
+                            <div class="w-48 h-64 bg-slate-300 shrink-0 rounded-2xl wf-media flex flex-col items-center justify-center border-2 border-transparent"></div>
+                            <div class="w-48 h-64 bg-slate-300 shrink-0 rounded-2xl wf-media flex flex-col items-center justify-center border-2 border-transparent"></div>
+                            <div class="w-48 h-64 bg-slate-300 shrink-0 rounded-2xl wf-media flex flex-col items-center justify-center border-2 border-transparent"></div>
+                        </div>
+                    `;
+                } else {
+                    // Generisch
+                    wireframe.innerHTML = `
+                        <div class="h-16 bg-slate-200 rounded-xl w-full mb-8 shrink-0"></div>
+                        <div class="h-64 bg-slate-300 rounded-3xl w-full mb-8 wf-media flex flex-col items-center justify-center transition-all border-2 border-transparent shrink-0"></div>
+                        <div class="h-4 bg-slate-200 rounded w-full mb-3"></div>
+                        <div class="h-4 bg-slate-200 rounded w-5/6 mb-3"></div>
+                        <div class="h-4 bg-slate-200 rounded w-1/2"></div>
+                    `;
+                }
+            } else {
+                // Erlaubte Seiten (z.B. wikipedia) real in Iframe laden
+                wireframe.classList.add('hidden');
+                wireframe.classList.remove('flex');
+                iframe.classList.remove('hidden');
+                iframe.src = "https://" + url;
+            }
+        }
+
+        function toggleEcoMode() {
+            isEcoModeActive = !isEcoModeActive;
+            const knob = document.getElementById('eco-knob');
+            const status = document.getElementById('eco-status');
+            const content = document.getElementById('sim-content');
+            const btn = document.getElementById('eco-toggle-btn');
+            const glow = document.getElementById('eco-bg-glow');
+            
+            if (isEcoModeActive) {
+                // Eco Mode ON
+                knob.classList.add('translate-x-7', 'bg-green-400');
+                knob.classList.remove('bg-slate-500');
+                status.innerText = "Eco Mode: Active";
+                status.classList.replace('text-slate-400', 'text-green-400');
+                btn.classList.add('border-green-500/50', 'shadow-[0_0_15px_rgba(34,197,94,0.3)]');
+                glow.classList.replace('opacity-0', 'opacity-100');
+                
+                // CSS Filter Magie auf den Content-Bereich (wirkt auf Iframe ODER Wireframe)
+                content.style.filter = "grayscale(100%) invert(95%) hue-rotate(180deg) contrast(130%)";
+                
+                // Wireframe: Media Boxen manipulieren
+                document.querySelectorAll('.wf-media').forEach(el => {
+                    el.classList.add('bg-slate-900', 'border-green-500');
+                    el.classList.remove('bg-slate-300', 'bg-slate-800');
+                    el.innerHTML = `
+                        <svg class="w-10 h-10 text-green-500 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        <span class="text-green-500 text-xs font-black uppercase tracking-widest">Media Paused</span>
+                        <span class="text-slate-400 text-[10px] font-mono-custom mt-1">-75% Data</span>
+                    `;
+                });
+                
+                // Reduziere simulierten Energieverbrauch temporär
+                targetBase *= 0.4; 
+                
+            } else {
+                // Eco Mode OFF
+                knob.classList.remove('translate-x-7', 'bg-green-400');
+                knob.classList.add('bg-slate-500');
+                status.innerText = "Eco Mode: Off";
+                status.classList.replace('text-green-400', 'text-slate-400');
+                btn.classList.remove('border-green-500/50', 'shadow-[0_0_15px_rgba(34,197,94,0.3)]');
+                glow.classList.replace('opacity-100', 'opacity-0');
+                
+                content.style.filter = "none";
+                
+                document.querySelectorAll('.wf-media').forEach(el => {
+                    el.classList.remove('bg-slate-900', 'border-green-500');
+                    el.innerHTML = '';
+                    if(el.classList.contains('h-72')) {
+                         el.classList.add('bg-slate-800'); 
+                    } else {
+                         el.classList.add('bg-slate-300');
+                    }
+                });
+                
+                targetBase /= 0.4;
+            }
         }
 
         function runSimulation() {
@@ -362,8 +547,8 @@
             // Graph Glättung
             baseValue += (targetBase - baseValue) * 0.05;
             const time = Date.now() / 1000;
-            const noise = (Math.sin(time * 1.5) * 8) + (Math.sin(time * 0.4) * 12) + (Math.random() * 4);
-            const currentGraphVal = Math.max(10, baseValue + noise);
+            const noise = (Math.sin(time * 2) * 5) + (Math.sin(time * 0.5) * 10) + (Math.random() * 3);
+            const currentGraphVal = Math.max(5, baseValue + noise);
             
             liveData.push(currentGraphVal);
             liveData.shift();
@@ -373,15 +558,17 @@
             updateTimer -= 0.016; 
             if(updateTimer <= 0) {
                 updateTimer = 20;
-                targetBase = 100 * (0.6 + Math.random() * 0.8);
+                let newTarget = 100 * (0.6 + Math.random() * 0.8);
+                if(isEcoModeActive) newTarget *= 0.4;
+                targetBase = newTarget;
             }
             document.getElementById('timer-val').innerText = Math.max(0, Math.ceil(updateTimer));
 
-            // Skalierte Berechnung
+            // Skalierte Berechnung (Realistischere Zahlen)
             const loadFactor = (currentGraphVal / 100) * config.trafficScale;
-            consumption.power = loadFactor * 0.05;
-            consumption.water = loadFactor * 0.022;
-            consumption.co2 = loadFactor * 0.016;
+            consumption.power = loadFactor * 0.034;
+            consumption.water = loadFactor * 0.015;
+            consumption.co2 = loadFactor * 0.012;
 
             document.getElementById('stat-power').innerText = consumption.power.toFixed(config.trafficScale > 20 ? 2 : 4);
             document.getElementById('stat-water').innerText = consumption.water.toFixed(config.trafficScale > 20 ? 2 : 4);
@@ -390,66 +577,105 @@
             requestAnimationFrame(runSimulation);
         }
 
-        // --- App Steuerung ---
         function switchTab(tab) {
             document.getElementById('section-tracker').classList.toggle('hidden', tab !== 'tracker');
             document.getElementById('section-game').classList.toggle('hidden', tab !== 'game');
-            document.getElementById('btn-tracker').classList.toggle('bg-green-600', tab === 'tracker');
-            document.getElementById('btn-game').classList.toggle('bg-green-600', tab === 'game');
+            
+            const btnTracker = document.getElementById('btn-tracker');
+            const btnGame = document.getElementById('btn-game');
+            
+            if(tab === 'tracker') {
+                btnTracker.className = "px-8 py-3 bg-green-600 text-white rounded-xl font-black uppercase tracking-widest shadow-[0_0_15px_rgba(34,197,94,0.4)] transition-all duration-300";
+                btnGame.className = "px-8 py-3 rounded-xl font-bold uppercase tracking-widest text-slate-400 hover:text-white hover:bg-slate-800 transition-all duration-300";
+            } else {
+                btnGame.className = "px-8 py-3 bg-green-600 text-white rounded-xl font-black uppercase tracking-widest shadow-[0_0_15px_rgba(34,197,94,0.4)] transition-all duration-300";
+                btnTracker.className = "px-8 py-3 rounded-xl font-bold uppercase tracking-widest text-slate-400 hover:text-white hover:bg-slate-800 transition-all duration-300";
+            }
         }
 
-        // --- Mini Game Logic ---
+        // --- Game Logic ---
         const gCanvas = document.getElementById('gameCanvas');
         const gCtx = gCanvas.getContext('2d');
-        gCanvas.width = 600; gCanvas.height = 300;
+        gCanvas.width = 800; gCanvas.height = 400;
         let gameActive = false, score = 0, temp = 20, nodes = [];
 
         function gameLoop() {
             if(!gameActive) return;
-            gCtx.clearRect(0,0,600,300);
-            temp += 0.06;
-            document.getElementById('game-temp').innerText = temp.toFixed(1);
+            gCtx.clearRect(0,0,800,400);
+            
+            // Background Grid for Tech-Look
+            gCtx.strokeStyle = '#1e293b';
+            gCtx.lineWidth = 1;
+            for(let i=0; i<800; i+=40) { gCtx.beginPath(); gCtx.moveTo(i,0); gCtx.lineTo(i,400); gCtx.stroke(); }
+            for(let i=0; i<400; i+=40) { gCtx.beginPath(); gCtx.moveTo(0,i); gCtx.lineTo(800,i); gCtx.stroke(); }
+
+            temp += 0.05;
+            document.getElementById('game-temp').innerText = temp.toFixed(1) + "°C";
 
             nodes.forEach((n, i) => {
-                n.life -= 0.65;
+                n.life -= 0.5;
+                const radius = 30 + Math.sin(Date.now()/80)*5;
+                
+                // Draw Node Glow
+                const grad = gCtx.createRadialGradient(n.x, n.y, 0, n.x, n.y, radius*2);
+                grad.addColorStop(0, `rgba(239, 68, 68, ${n.life/100})`);
+                grad.addColorStop(1, 'rgba(239, 68, 68, 0)');
+                gCtx.fillStyle = grad;
+                gCtx.fillRect(n.x-radius*2, n.y-radius*2, radius*4, radius*4);
+
+                // Draw Core
                 gCtx.beginPath();
-                gCtx.arc(n.x, n.y, 25 + Math.sin(Date.now()/80)*4, 0, Math.PI*2);
-                gCtx.fillStyle = `rgba(239, 68, 68, ${n.life/100})`;
-                gCtx.shadowBlur = 10; gCtx.shadowColor = 'red';
+                gCtx.arc(n.x, n.y, 15, 0, Math.PI*2);
+                gCtx.fillStyle = '#fff';
                 gCtx.fill();
-                gCtx.shadowBlur = 0;
-                if(n.life <= 0) { nodes.splice(i,1); temp += 12; }
+
+                if(n.life <= 0) { nodes.splice(i,1); temp += 15; }
             });
 
-            if(temp >= 100) { gameActive = false; alert("KRITISCHER FEHLER: Server-Cluster wegen Hitze abgeschaltet! Score: " + score); }
+            if(temp >= 100) { 
+                gameActive = false; 
+                document.getElementById('game-temp').innerText = "ERROR!";
+                alert("KRITISCHER FEHLER: Server-Cluster wegen Überhitzung abgeschaltet! SDG 12 Mission fehlgeschlagen. Score: " + score); 
+                document.getElementById('start-game').style.display = 'block';
+            }
             else requestAnimationFrame(gameLoop);
         }
 
-        gCanvas.onmousedown = (e) => {
-            const rect = gCanvas.getBoundingClientRect();
-            const x = (e.clientX - rect.left) * (600 / rect.width);
-            const y = (e.clientY - rect.top) * (300 / rect.height);
+        // Touch und Mouse Event für das Game
+        function handleInteraction(x, y) {
             nodes.forEach((n, i) => {
-                if(Math.sqrt((x-n.x)**2 + (y-n.y)**2) < 35) {
-                    nodes.splice(i,1); score++; temp = Math.max(20, temp-3.5);
+                if(Math.sqrt((x-n.x)**2 + (y-n.y)**2) < 40) {
+                    nodes.splice(i,1); score++; temp = Math.max(20, temp-4);
                     document.getElementById('game-score').innerText = score;
                 }
             });
-        };
+        }
+
+        gCanvas.addEventListener('mousedown', (e) => {
+            if(!gameActive) return;
+            const rect = gCanvas.getBoundingClientRect();
+            handleInteraction((e.clientX - rect.left) * (800 / rect.width), (e.clientY - rect.top) * (400 / rect.height));
+        });
+        gCanvas.addEventListener('touchstart', (e) => {
+            if(!gameActive) return;
+            e.preventDefault();
+            const rect = gCanvas.getBoundingClientRect();
+            handleInteraction((e.touches[0].clientX - rect.left) * (800 / rect.width), (e.touches[0].clientY - rect.top) * (400 / rect.height));
+        }, {passive: false});
 
         document.getElementById('start-game').onclick = () => {
             gameActive = true; score = 0; temp = 20; nodes = [];
+            document.getElementById('game-score').innerText = "0";
             document.getElementById('start-game').style.display = 'none';
-            setInterval(() => { if(gameActive) nodes.push({x: Math.random()*540+30, y: Math.random()*240+30, life: 100}) }, 750);
+            setInterval(() => { if(gameActive) nodes.push({x: Math.random()*700+50, y: Math.random()*300+50, life: 100}) }, 800);
             gameLoop();
         };
 
         window.onload = () => {
             initChart();
-            analyzeURL(); // Startet mit youtube.com als Default
+            analyzeURL(); // Default Youtube laden
             runSimulation();
         };
     </script>
 </body>
 </html>
-
